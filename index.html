@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pengingat Tugas</title>
+    <title>DailyDash</title>
     <style>
         :root {
             --primary: #4f46e5;
@@ -380,7 +380,7 @@
 <div class="app-container">
     <header>
         <div>
-            <h1>Pengingat Tugas</h1>
+            <h1>DailyDash</h1>
             <p id="currentDate">Memuat tanggal...</p>
         </div>
         <button class="notif-btn" id="notifBtn" onclick="requestNotifPermission()">🔔 Aktifkan Alarm</button>
@@ -500,7 +500,7 @@
         Notification.requestPermission().then(permission => {
             updateNotifButton();
             if (permission === 'granted') {
-                new Notification("Pengingat Tugas", {
+                new Notification("DailyDash", {
                     body: "Notifikasi pengingat berhasil diaktifkan!"
                 });
             } else {
