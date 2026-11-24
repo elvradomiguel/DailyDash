@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pengingat Tugas</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
+            --text-muted: #6b7280;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --border: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 32px);
+            max-height: 820px;
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 0.8rem;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+
+        .notif-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .notif-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 12px 20px;
+            background: #eef2ff;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-item span {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-item small {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-section {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            background: #fafafa;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+            background: white;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+        }
+
+        .row-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .add-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .filter-tabs {
+            display: flex;
+            padding: 10px 20px 0;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 8px 12px;
+            border: none;
+            background: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .view-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            background: white;
+        }
+
+        .view-tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .view-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .task-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .schedule-view {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+        }
+
+        .schedule-form {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            background: #fafafa;
+        }
+
+        .schedule-list {
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .schedule-card {
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: white;
+        }
+
+        .schedule-card.today {
+            border-left: 4px solid var(--primary);
+            background: #eef2ff;
+        }
+
+        .schedule-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .schedule-meta {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .helper-text {
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            line-height: 1.4;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%);
+            padding: 10px 16px;
+            border-radius: 10px;
+            background: #1f2937;
+            color: white;
+            font-size: 0.85rem;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .task-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .task-card.completed {
+            opacity: 0.6;
+            background: #f9fafb;
+        }
+
+        .task-card.completed .task-title {
+            text-decoration: line-through;
+        }
+
+        .task-card.overdue:not(.completed) {
+            border-left: 4px solid var(--danger);
+            background: #fef2f2;
+        }
+
+        .checkbox {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 2px solid var(--primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .task-card.completed .checkbox {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .task-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            word-wrap: break-word;
+            margin-bottom: 4px;
+        }
+
+        .task-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.7rem;
+        }
+
+        .badge-high { background: #fee2e2; color: #dc2626; }
+        .badge-medium { background: #fef3c7; color: #d97706; }
+        .badge-low { background: #d1fae5; color: #059669; }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 4px;
+            border-radius: 6px;
+        }
+
+        .delete-btn:hover {
+            color: var(--danger);
+            background: #fee2e2;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px 20px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <div>
+            <h1>Pengingat Tugas</h1>
+            <p id="currentDate">Memuat tanggal...</p>
+        </div>
+        <button class="notif-btn" id="notifBtn" onclick="requestNotifPermission()">🔔 Aktifkan Alarm</button>
+    </header>
+
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span id="totalCount">0</span>
+            <small>Total</small>
+        </div>
+        <div class="stat-item">
+            <span id="pendingCount">0</span>
+            <small>Belum</small>
+        </div>
+        <div class="stat-item">
+            <span id="doneCount">0</span>
+            <small>Selesai</small>
+        </div>
+        <div class="stat-item">
+            <span id="overdueCount">0</span>
+            <small>Terlambat</small>
+        </div>
+        <div class="stat-item">
+            <span id="currentStreak">0</span>
+            <small>Streak hari 🔥</small>
+        </div>
+        <div class="stat-item">
+            <span id="bestStreak">0</span>
+            <small>Streak terbaik</small>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="input-group">
+            <input type="text" id="taskTitle" placeholder="Nama tugas atau mata pelajaran..." required>
+            <div class="row-inputs">
+                <input type="datetime-local" id="taskDeadline">
+                <select id="taskPriority">
+                    <option value="medium">Prioritas: Sedang</option>
+                    <option value="high">Prioritas: Tinggi 🔥</option>
+                    <option value="low">Prioritas: Rendah</option>
+                </select>
+            </div>
+            <p class="helper-text">Alarm mengikuti waktu tenggat. Notifikasi di luar halaman memerlukan izin browser dan browser tetap berjalan.</p>
+            <button class="add-btn" onclick="addTask()">+ Tambah Tugas</button>
+        </div>
+    </div>
+
+    <div class="view-tabs">
+        <button class="view-tab active" id="tasksViewTab" onclick="showView('tasks')">📝 Tugas</button>
+        <button class="view-tab" id="scheduleViewTab" onclick="showView('schedule')">📚 Jadwal Pelajaran</button>
+    </div>
+
+    <div id="tasksView" style="display:flex;flex-direction:column;flex:1;min-height:0;">
+    <div class="filter-tabs">
+        <button class="tab active" onclick="setFilter('all', this)">Semua</button>
+        <button class="tab" onclick="setFilter('pending', this)">Belum Selesai</button>
+        <button class="tab" onclick="setFilter('overdue', this)">Terlambat</button>
+        <button class="tab" onclick="setFilter('completed', this)">Selesai</button>
+    </div>
+
+    <div class="task-list" id="taskList"></div>
+    </div>
+
+    <section class="schedule-view" id="scheduleView" style="display:none;">
+        <div class="schedule-form">
+            <div class="input-group">
+                <input type="text" id="subjectName" placeholder="Nama mata pelajaran..." maxlength="80">
+                <div class="row-inputs">
+                    <select id="subjectDay">
+                        <option value="1">Senin</option>
+                        <option value="2">Selasa</option>
+                        <option value="3">Rabu</option>
+                        <option value="4">Kamis</option>
+                        <option value="5">Jumat</option>
+                        <option value="6">Sabtu</option>
+                        <option value="0">Minggu</option>
+                    </select>
+                    <input type="text" id="subjectRoom" placeholder="Ruang (opsional)" maxlength="40">
+                </div>
+                <button class="add-btn" onclick="addSchedule()">+ Tambah Jadwal</button>
+            </div>
+        </div>
+        <div class="schedule-list" id="scheduleList"></div>
+    </section>
+</div>
+
+<script>
+    let tasks = JSON.parse(localStorage.getItem('tugas_app_data')) || [];
+    let schedule = JSON.parse(localStorage.getItem('tugas_app_schedule')) || [];
+    let completionDates = JSON.parse(localStorage.getItem('tugas_app_completion_dates')) || [];
+    let currentFilter = 'all';
+    const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+    // Tampilkan tanggal hari ini
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id-ID', options);
+
+    // Cek status izin notifikasi
+    function updateNotifButton() {
+        const btn = document.getElementById('notifBtn');
+        if (!("Notification" in window)) {
+            btn.style.display = 'none';
+        } else if (Notification.permission === 'granted') {
+            btn.textContent = '🔔 Alarm Aktif';
+            btn.style.background = 'rgba(16, 185, 129, 0.35)';
+        } else if (Notification.permission === 'denied') {
+            btn.textContent = '🔕 Izin Alarm Ditolak';
+        }
+    }
+
+    function requestNotifPermission() {
+        if (!("Notification" in window)) {
+            alert("Browser ini tidak mendukung notifikasi.");
+            return;
+        }
+        Notification.requestPermission().then(permission => {
+            updateNotifButton();
+            if (permission === 'granted') {
+                new Notification("Pengingat Tugas", {
+                    body: "Notifikasi pengingat berhasil diaktifkan!"
+                });
+            } else {
+                showToast("Izin notifikasi belum diberikan. Ubah izin situs di pengaturan browser.");
+            }
+        });
+    }
+
+    function saveTasks() {
+        localStorage.setItem('tugas_app_data', JSON.stringify(tasks));
+        renderTasks();
+    }
+
+    function addTask() {
+        const titleInput = document.getElementById('taskTitle');
+        const deadlineInput = document.getElementById('taskDeadline');
+        const priorityInput = document.getElementById('taskPriority');
+
+        const title = titleInput.value.trim();
+        if (!title) {
+            alert("Tulis nama tugasnya terlebih dahulu!");
+            return;
+        }
+
+        const newTask = {
+            id: Date.now(),
+            title: title,
+            deadline: deadlineInput.value,
+            priority: priorityInput.value,
+            completed: false,
+            notified: false
+        };
+
+        tasks.unshift(newTask);
+        titleInput.value = '';
+        deadlineInput.value = '';
+        saveTasks();
+    }
+
+    function toggleTask(id) {
+        const task = tasks.find(t => t.id === id);
+        if (task && !task.completed) {
+            const today = getDateKey(new Date());
+            if (!completionDates.includes(today)) {
+                completionDates.push(today);
+                localStorage.setItem('tugas_app_completion_dates', JSON.stringify(completionDates));
+            }
+        }
+        tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+        saveTasks();
+    }
+
+    function deleteTask(id) {
+        tasks = tasks.filter(t => t.id !== id);
+        saveTasks();
+    }
+
+    function setFilter(filter, btn) {
+        currentFilter = filter;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        renderTasks();
+    }
+
+    function showView(view) {
+        const showingTasks = view === 'tasks';
+        document.getElementById('tasksView').style.display = showingTasks ? 'flex' : 'none';
+        document.getElementById('scheduleView').style.display = showingTasks ? 'none' : 'block';
+        document.getElementById('tasksViewTab').classList.toggle('active', showingTasks);
+        document.getElementById('scheduleViewTab').classList.toggle('active', !showingTasks);
+        if (!showingTasks) renderSchedule();
+    }
+
+    function addSchedule() {
+        const nameInput = document.getElementById('subjectName');
+        const name = nameInput.value.trim();
+
+        if (!name) {
+            alert("Isi nama mata pelajarannya terlebih dahulu.");
+            return;
+        }
+
+        schedule.push({
+            id: Date.now(),
+            name,
+            day: Number(document.getElementById('subjectDay').value),
+            room: document.getElementById('subjectRoom').value.trim()
+        });
+        localStorage.setItem('tugas_app_schedule', JSON.stringify(schedule));
+        nameInput.value = '';
+        document.getElementById('subjectRoom').value = '';
+        renderSchedule();
+    }
+
+    function deleteSchedule(id) {
+        schedule = schedule.filter(item => item.id !== id);
+        localStorage.setItem('tugas_app_schedule', JSON.stringify(schedule));
+        renderSchedule();
+    }
+
+    function renderSchedule() {
+        const list = document.getElementById('scheduleList');
+        list.innerHTML = '';
+        const ordered = [...schedule].sort((a, b) => a.day - b.day || a.name.localeCompare(b.name, 'id'));
+        if (ordered.length === 0) {
+            list.innerHTML = '<div class="empty-state">Jadwal pelajaran belum ditambahkan.</div>';
+            return;
+        }
+        ordered.forEach(item => {
+            const card = document.createElement('div');
+            card.className = `schedule-card ${item.day === new Date().getDay() ? 'today' : ''}`;
+            card.innerHTML = `
+                <div class="schedule-title">${escapeHTML(item.name)}</div>
+                <div class="schedule-meta">
+                    <span>📅 ${dayNames[item.day]}${item.day === new Date().getDay() ? ' · Hari ini' : ''}</span>
+                    ${item.room ? `<span>📍 ${escapeHTML(item.room)}</span>` : ''}
+                </div>
+                <button class="delete-btn" onclick="deleteSchedule(${item.id})" title="Hapus jadwal" aria-label="Hapus jadwal">🗑️</button>
+            `;
+            list.appendChild(card);
+        });
+    }
+
+    function formatDeadline(dateStr) {
+        if (!dateStr) return 'Tanpa tenggat';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('id-ID', {
+            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+        });
+    }
+
+    function getDateKey(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    function shiftDateKey(dateKey, days) {
+        const [year, month, day] = dateKey.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
+        date.setDate(date.getDate() + days);
+        return getDateKey(date);
+    }
+
+    function getStreaks() {
+        const dates = [...new Set(completionDates)].sort();
+        const dateSet = new Set(dates);
+        const today = getDateKey(new Date());
+        const anchor = dateSet.has(today) ? today : shiftDateKey(today, -1);
+        let current = 0;
+        if (dateSet.has(anchor)) {
+            let date = anchor;
+            while (dateSet.has(date)) {
+                current++;
+                date = shiftDateKey(date, -1);
+            }
+        }
+
+        let best = 0;
+        let run = 0;
+        let previous = '';
+        dates.forEach(date => {
+            run = previous && shiftDateKey(previous, 1) === date ? run + 1 : 1;
+            best = Math.max(best, run);
+            previous = date;
+        });
+        return { current, best };
+    }
+
+    function renderTasks() {
+        const list = document.getElementById('taskList');
+        list.innerHTML = '';
+
+        // Update statistik
+        document.getElementById('totalCount').textContent = tasks.length;
+        document.getElementById('doneCount').textContent = tasks.filter(t => t.completed).length;
+        document.getElementById('pendingCount').textContent = tasks.filter(t => !t.completed).length;
+        document.getElementById('overdueCount').textContent = tasks.filter(t =>
+            !t.completed && t.deadline && new Date(t.deadline) < new Date()
+        ).length;
+        const streaks = getStreaks();
+        document.getElementById('currentStreak').textContent = streaks.current;
+        document.getElementById('bestStreak').textContent = streaks.best;
+
+        const filtered = tasks.filter(t => {
+            if (currentFilter === 'pending') return !t.completed;
+            if (currentFilter === 'overdue') return !t.completed && t.deadline && new Date(t.deadline) < new Date();
+            if (currentFilter === 'completed') return t.completed;
+            return true;
+        });
+
+        if (filtered.length === 0) {
+            list.innerHTML = '<div class="empty-state">Belum ada tugas di daftar ini. 🎉</div>';
+            return;
+        }
+
+        const now = new Date();
+
+        filtered.forEach(task => {
+            const isOverdue = task.deadline && new Date(task.deadline) < now && !task.completed;
+            const priorityLabels = {
+                high: ['Tinggi', 'badge-high'],
+                medium: ['Sedang', 'badge-medium'],
+                low: ['Rendah', 'badge-low']
+            };
+            const [pText, pClass] = priorityLabels[task.priority];
+
+            const card = document.createElement('div');
+            card.className = `task-card ${task.completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}`;
+            card.innerHTML = `
+                <div class="checkbox" onclick="toggleTask(${task.id})">
+                    ${task.completed ? '✓' : ''}
+                </div>
+                <div class="task-info">
+                    <div class="task-title">${escapeHTML(task.title)}</div>
+                    <div class="task-meta">
+                        <span class="badge ${pClass}">${pText}</span>
+                        <span>⏰ ${formatDeadline(task.deadline)}</span>
+                        ${isOverdue ? '<span style="color:#dc2626;font-weight:700;">(Terlewat!)</span>' : ''}
+                    </div>
+                </div>
+                <button class="delete-btn" onclick="deleteTask(${task.id})" title="Hapus">🗑️</button>
+            `;
+            list.appendChild(card);
+        });
+    }
+
+    function escapeHTML(str) {
+        return str.replace(/[&<>'"]/g, tag => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+        }[tag]));
+    }
+
+    // Cek tenggat waktu setiap 15 detik untuk memicu alarm/notifikasi
+    setInterval(() => {
+        const now = new Date();
+        let changed = false;
+
+        tasks.forEach(task => {
+            if (!task.completed && !task.notified && task.deadline) {
+                const due = new Date(task.deadline);
+                if (now >= due) {
+                    task.notified = true;
+                    changed = true;
+                    playBeep();
+                    if ("Notification" in window && Notification.permission === 'granted') {
+                        new Notification("⏰ Tenggat Tugas Tiba!", {
+                            body: `Waktunya menyelesaikan: ${task.title}`
+                        });
+                    } else {
+                        showToast(`⏰ Tenggat tugas: ${task.title}`);
+                    }
+                }
+            }
+        });
+
+        if (changed) saveTasks();
+    }, 15000);
+
+    // Suara alarm sederhana menggunakan Web Audio API
+    function playBeep() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.6);
+            osc.onended = () => ctx.close();
+        } catch (e) {
+            showToast("Alarm suara tidak tersedia di browser ini.");
+        }
+    }
+
+    function showToast(message) {
+        const existing = document.querySelector('.toast');
+        if (existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 5000);
+    }
+
+    updateNotifButton();
+    renderTasks();
+</script>
+
+</body>
+</html>
